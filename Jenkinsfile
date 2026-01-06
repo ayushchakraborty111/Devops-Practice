@@ -4,8 +4,8 @@ pipeline {
     environment {
         IMAGE_NAME = "devops-practice"
         CONTAINER_NAME = "devops-practice-container"
-        APP_PORT = "8081" 
-        HOST_PORT = "8081"
+        APP_PORT = "8000" 
+        HOST_PORT = "8000"
     }
 
     stages {
