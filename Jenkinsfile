@@ -27,8 +27,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 bat """
-                docker stop %CONTAINER_NAME% || exit 0
-                docker rm %CONTAINER_NAME% || exit 0
+                docker rm -f %CONTAINER_NAME% 2>NUL
                 docker run -d -p %HOST_PORT%:%APP_PORT% --name %CONTAINER_NAME% %IMAGE_NAME%
                 """
             }
