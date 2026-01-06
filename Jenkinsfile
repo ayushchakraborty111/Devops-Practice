@@ -1,36 +1,46 @@
-node {
-    def app
+pipeline {
+    agent any
 
-    stage('Clone repository') {
-        /* Let's make sure we have the repository cloned to our workspace */
-
-        checkout scm
+    environment {
+        IMAGE_NAME = "devops-practice"
+        CONTAINER_NAME = "devops-practice-container"
+        APP_PORT = "8081" 
+        HOST_PORT = "8081"
     }
 
-    stage('Build image') {
-        /* This builds the actual image; synonymous to
-         * docker build on the command line */
+    stages {
+        stage('Clone Repo') {
+            steps {
+                checkout scm
+            }
+        }
 
-        app = docker.build("edureka1/edureka")
-    }
+        stage('Build Docker Image') {
+            steps {
+                bat """
+                docker --version
+                docker build -t %IMAGE_NAME% .
+                """
+            }
+        }
 
-    stage('Test image') {
-        /* Ideally, we would run a test framework against our image.
-         * For this example, we're using a Volkswagen-type approach ;-) */
-
-        app.inside {
-            sh 'echo "Tests passed"'
+        stage('Run Docker Container') {
+            steps {
+                bat """
+                docker stop %CONTAINER_NAME% || exit 0
+                docker rm %CONTAINER_NAME% || exit 0
+                docker run -d -p %HOST_PORT%:%APP_PORT% --name %CONTAINER_NAME% %IMAGE_NAME%
+                """
+            }
         }
     }
 
-    stage('Push image') {
-        /* Finally, we'll push the image with two tags:
-         * First, the incremental build number from Jenkins
-         * Second, the 'latest' tag.
-         * Pushing multiple tags is cheap, as all the layers are reused. */
-        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
+    post {
+        success {
+            echo "Docker image built and container running locally"
+        }
+        failure {
+            echo "Build failed. Check Dockerfile and logs."
         }
     }
 }
