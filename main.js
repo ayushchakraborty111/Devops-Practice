@@ -1,5 +1,6 @@
 // load the http module
 var http = require('http');
+var port = process.env.PORT || 8000;
 
 // configure our HTTP server
 var server = http.createServer(function (request, response) {
@@ -8,6 +9,6 @@ var server = http.createServer(function (request, response) {
 });
 
 // listen on localhost:8000
-server.listen(8000, '0.0.0.0', () => {
-  console.log('Server running on port 8000');
+server.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
 });
